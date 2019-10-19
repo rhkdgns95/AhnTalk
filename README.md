@@ -46,6 +46,10 @@
 - glide 라이브러리 추가하기.
 > > implementation 'com.github.bumptech.glide:glide:4.10.0'
 
+- 말풍선 디자인
+> > http://www.devexchanges.info/2016/03/design-chat-bubble-ui-in-android.html 참고
+
+
 ## Todo
 - [x] 'Ahn' Project 생성 및 MainActivity -> SplashActivity 이름변경.
 - [x] 로딩 아이콘 파일 다운로드 및 Firebase연동하기.
@@ -60,3 +64,4 @@
 - [x] 메시지 보내기.
 - [x] 메시지 보내기 버그수정 - 채팅방 계속 만들어지는 것 + 로그인 유저 친구목록에서 제외.
 - [x] 메시지 나타내기.
+- [x] 말풍선 Chat Bubble 만들기.
