@@ -17,10 +17,12 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.ahntalk.R;
 import com.example.ahntalk.chat.MessageActivity;
 import com.example.ahntalk.model.UserModel;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,21 +48,30 @@ public class PeopleFragment extends Fragment {
 
     /**
      *  (1) Recycler View 생성
+     *
+     *  * myUid
+     *  현재 로그인한 user의 uid이며,
+     *  자신의 데이터는 채팅목록에서
+     *  제외 시켜주면 된다.
      */
     class PeopleFragmentRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         List<UserModel> userModels;
         public PeopleFragmentRecyclerViewAdapter() {
             userModels = new ArrayList<>();
+            final String myUid = FirebaseAuth.getInstance().getUid();
             FirebaseDatabase.getInstance().getReference().child("users").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     // 데이터 모델이 바뀔수도있다.
                     // 누적되는 데이터를 없애준다.
                     userModels.clear();
-
                     for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        userModels.add(snapshot.getValue(UserModel.class));
+                        UserModel userModel = snapshot.getValue(UserModel.class);
+                        if(userModel.uid.equals(myUid)) {
+                            continue;
+                        }
+                        userModels.add(userModel);
                     }
                     // 데이터가 쌓이고나서 새로고침을 해야 친구목록이 뜬다.
                     notifyDataSetChanged();

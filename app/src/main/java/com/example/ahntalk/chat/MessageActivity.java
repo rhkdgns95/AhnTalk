@@ -70,7 +70,13 @@ public class MessageActivity extends AppCompatActivity {
                  *  임의적으로 생성됨.
                  */
                 if(chatRoomUid == null) {
-                    FirebaseDatabase.getInstance().getReference().child("chatrooms").push().setValue(chatModel);
+                    button.setEnabled(false);
+                    FirebaseDatabase.getInstance().getReference().child("chatrooms").push().setValue(chatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            checkChatRoom();
+                        }
+                    });
                 } else {
                     ChatModel.Comment comment = new ChatModel.Comment();
                     comment.uid = uid;
@@ -89,6 +95,7 @@ public class MessageActivity extends AppCompatActivity {
                     ChatModel chatModel = item.getValue(ChatModel.class);
                     if(chatModel.users.containsKey(destinationUid)) {
                         chatRoomUid = item.getKey();
+                        button.setEnabled(true);
                     }
                 }
             }
