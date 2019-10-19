@@ -1,6 +1,9 @@
 package com.example.ahntalk.fragment;
 
+import android.app.ActivityOptions;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -12,6 +15,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.ahntalk.R;
+import com.example.ahntalk.chat.MessageActivity;
 import com.example.ahntalk.model.UserModel;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -96,6 +100,25 @@ public class PeopleFragment extends Fragment {
                     .apply(new RequestOptions().circleCrop())
                     .into(((CustomViewHolder)holder).imageView);
             ((CustomViewHolder)holder).textView.setText(userModels.get(position).userName);
+
+            /**
+             *  (3) 유저 클릭시, 채팅창 띄우기.
+             *
+             *  애니메이션 효과 추가.
+             */
+            holder.itemView.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(v.getContext(), MessageActivity.class);
+                    /**
+                     *  주의!
+                     *
+                     *  버전: JELLY_BEAN 이상.
+                     */
+                    ActivityOptions activityOptions = ActivityOptions.makeCustomAnimation(v.getContext(), R.anim.fromright, R.anim.toleft);
+                    startActivity(intent, activityOptions.toBundle());
+                }
+            });
         }
 
         private class CustomViewHolder extends RecyclerView.ViewHolder {

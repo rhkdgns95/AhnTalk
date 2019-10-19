@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.example.ahntalk.model.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -131,7 +132,20 @@ public class SignupActivity extends AppCompatActivity {
                                         userModel.userName = name.getText().toString();
                                         userModel.profileImageUrl = imageUrl;
 
-                                        FirebaseDatabase.getInstance().getReference().child("users").child(uid).setValue(userModel);
+                                        FirebaseDatabase.getInstance().getReference().child("users").child(uid).setValue(userModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            /**
+                                             *  새 유저정보 저장완료 이벤트.
+                                             *
+                                             *  회원가입 완료 후
+                                             *  현재화면이 닫히도록 하기.
+                                             *
+                                             * @param aVoid
+                                             */
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                SignupActivity.this.finish();
+                                            }
+                                        });
                                     }
                                 });
                             }

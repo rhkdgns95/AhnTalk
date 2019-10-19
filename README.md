@@ -54,4 +54,5 @@
 - [x] SignupActivity - Firebase의 Storage에 프로필 사진 저장 - 회원가입 레이아웃 - 2.
 - [x] Login Event 만들기.
 - [x] BottomNavigationView 만들기.
-- [] People Fragment 만들기 Part 1.
+- [x] People Fragment 만들기 Part 1.
+- [x] People Fragment 만들기 Part 2.
