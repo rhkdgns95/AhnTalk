@@ -2,11 +2,16 @@ package com.example.ahntalk.chat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.ahntalk.R;
 import com.example.ahntalk.model.ChatModel;
@@ -18,6 +23,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Comment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *  (1) 채팅창을 클릭할 경우
@@ -32,6 +40,8 @@ public class MessageActivity extends AppCompatActivity {
 
     private String uid;
     private String chatRoomUid;
+
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +58,7 @@ public class MessageActivity extends AppCompatActivity {
 
         button = (Button) findViewById(R.id.messageActivity_button);
         editText = (EditText) findViewById(R.id.messageActivity_editText);
+        recyclerView = (RecyclerView) findViewById(R.id.messageActivity_recyclerview);
 
         /**
          *  (2) 채팅 메시지 전송 - [전송] 클릭시
@@ -75,14 +86,17 @@ public class MessageActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Void aVoid) {
                             checkChatRoom();
+                            editText.setText("");
                         }
                     });
                 } else {
                     ChatModel.Comment comment = new ChatModel.Comment();
                     comment.uid = uid;
                     comment.message = editText.getText().toString();
+                    editText.setText("");
                     FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").push().setValue(comment);
                 }
+
             }
         });
         checkChatRoom();
@@ -96,6 +110,8 @@ public class MessageActivity extends AppCompatActivity {
                     if(chatModel.users.containsKey(destinationUid)) {
                         chatRoomUid = item.getKey();
                         button.setEnabled(true);
+                        recyclerView.setLayoutManager(new LinearLayoutManager(MessageActivity.this));
+                        recyclerView.setAdapter(new RecyclerViewAdapter());
                     }
                 }
             }
@@ -104,5 +120,54 @@ public class MessageActivity extends AppCompatActivity {
 
             }
         });
+    }
+    class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+        List<ChatModel.Comment> comments;
+
+        public RecyclerViewAdapter() {
+            comments = new ArrayList<>();
+            FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    comments.clear(); // clear를 하지 않으면, 데이터 갱신시 같은 데이터가 중복되서 쌓이게 됨.
+                    for(DataSnapshot item : dataSnapshot.getChildren()) {
+                        comments.add(item.getValue(ChatModel.Comment.class));
+                    }
+
+                    notifyDataSetChanged(); // 새로운 데이터를 갱신.
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            ((MessageViewHolder)holder).textView_message.setText(comments.get(position).message);
+        }
+
+        @NonNull
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+            return new MessageViewHolder(view); // View를 재사용할때 사용하는 클래스.
+        }
+
+        @Override
+        public int getItemCount() {
+            return comments.size();
+        }
+
+        private class MessageViewHolder extends RecyclerView.ViewHolder {
+            public TextView textView_message;
+
+            public MessageViewHolder(View view) {
+                super(view);
+                textView_message = (TextView) view.findViewById(R.id.messageItem_textView_message);
+            }
+        }
     }
 }
