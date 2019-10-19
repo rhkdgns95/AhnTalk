@@ -2,6 +2,7 @@
 - Firebase를 활용하여 Android 채팅톡 만들기.
 > API 23: Android 6.0 (Marshmallow)
 > 아이콘 파일 다운로드: https://www.iconfinder.com에서 상단의 SearchBar 검색 후 [free]선택하여 다운로드
+> 아이콘 파일 다운로드2: https://material.io/resources/icons/?style=baseline
 
 - Firebase 연동하기
 > 1. https://console.firebase.google.com Firebase 생성하기 프로젝트 명 'AhnTalk'.
@@ -49,3 +50,4 @@
 - [x] SignupActivity - Firebase로 계정생성 후 Database에 계정의 UID와 함께 유저정보 저장 - 회원가입 레이아웃.
 - [x] SignupActivity - Firebase의 Storage에 프로필 사진 저장 - 회원가입 레이아웃 - 2.
 - [x] Login Event 만들기.
+- [x] BottomNavigationView 만들기.
