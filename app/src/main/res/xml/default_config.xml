@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- START xml_defaults -->
+<!--
+    1. splash_background: 배경색
+    2. splash_message_caps: 서버 점검중 여부 확인
+    3. splash_message: 서버 점검중인경우 메시지
+-->
+<defaultsMap>
+    <entry>
+        <key>splash_background</key>
+        <value>#000000…</value>
+    </entry>
+    <entry>
+        <key>splash_message_caps</key>
+        <value>false</value>
+    </entry>
+    <entry>
+        <key>splash_message</key>
+        <value>Welcome to my awesome app!</value>
+    </entry>
+</defaultsMap>
+<!-- END xml_defaults -->

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "13287254547",
+    "firebase_url": "https://ahntalk-43992.firebaseio.com",
+    "project_id": "ahntalk-43992",
+    "storage_bucket": "ahntalk-43992.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13287254547:android:c74cb54b1ca5f69fadede6",
+        "android_client_info": {
+          "package_name": "com.example.ahntalk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "13287254547-smeu5c2fnbripc6u6qbvev0laerktg6b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ahntalk",
+            "certificate_hash": "d5e06600b54482ab4268f442c12d343e7f9c9186"
+          }
+        },
+        {
+          "client_id": "13287254547-210n0nt5kl46usdudm1jioppt1vqqgj4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA66i8pHF-yWT4B1tAMfCkY-K8weV0NIZo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "13287254547-210n0nt5kl46usdudm1jioppt1vqqgj4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
