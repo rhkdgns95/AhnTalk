@@ -35,9 +35,16 @@
 > > * Connect your app to Firebase
 > > * Add the Realtime Database to your app. - [Accpet Changed] 클릭.
 
+- Storage 연동
+> 1. Firebase 웹 페이지 - [Storage]클릭 - [시작하기]클릭.
+> 2. 안드로이드 스튜디오 - [Tools] - Firebase 클릭
+> 3. Storage
+> > * Connect your app to Firebase
+> > * Add Cloud Storage to your app. - [Accept Changed] 클릭.
+
 ## Todo
 - [x] 'Ahn' Project 생성 및 MainActivity -> SplashActivity 이름변경.
 - [x] 로딩 아이콘 파일 다운로드 및 Firebase연동하기.
 - [x] LoginActivity (Empty Activity생성)생성 후 원격 데이터로 테마적용하기 - 로그인 레이아웃.
 - [x] SignupActivity - Firebase로 계정생성 후 Database에 계정의 UID와 함께 유저정보 저장 - 회원가입 레이아웃.
-
+- [x] SignupActivity - Firebase의 Storage에 프로필 사진 저장 - 회원가입 레이아웃 - 2.
