@@ -56,3 +56,4 @@
 - [x] BottomNavigationView 만들기.
 - [x] People Fragment 만들기 Part 1.
 - [x] People Fragment 만들기 Part 2.
+- [x] 채팅방 데이터베이스 만들기.

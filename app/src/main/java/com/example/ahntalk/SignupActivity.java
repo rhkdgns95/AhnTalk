@@ -131,6 +131,7 @@ public class SignupActivity extends AppCompatActivity {
                                         UserModel userModel = new UserModel();
                                         userModel.userName = name.getText().toString();
                                         userModel.profileImageUrl = imageUrl;
+                                        userModel.uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                                         FirebaseDatabase.getInstance().getReference().child("users").child(uid).setValue(userModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             /**

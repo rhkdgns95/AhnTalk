@@ -94,7 +94,7 @@ public class PeopleFragment extends Fragment {
          *  (2) 유저의 이미지 추가하기.
          */
         @Override
-        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position, @NonNull List<Object> payloads) {
             Glide.with(holder.itemView.getContext())
                     .load(userModels.get(position).profileImageUrl)
                     .apply(new RequestOptions().circleCrop())
@@ -110,6 +110,7 @@ public class PeopleFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(v.getContext(), MessageActivity.class);
+                    intent.putExtra("destinationUid", userModels.get(position).uid);
                     /**
                      *  주의!
                      *
