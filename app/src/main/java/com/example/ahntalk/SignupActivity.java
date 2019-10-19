@@ -24,6 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StreamDownloadTask;
 import com.google.firebase.storage.UploadTask;
 
 public class SignupActivity extends AppCompatActivity {
@@ -113,7 +114,19 @@ public class SignupActivity extends AppCompatActivity {
                                 profileImageRef.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                        String imageUrl = profileImageRef.getDownloadUrl().toString();
+
+                                        /**
+                                         *  Image Load 변경.
+                                         *
+                                         *  이전 소스코드
+                                         *  String imageUrl = profileImageRef.getDownloadUrl().toString();
+                                         */
+                                        Task<Uri> uriTask = profileImageRef.getDownloadUrl();
+                                        while(!uriTask.isSuccessful());
+                                        Uri downloadUrl = uriTask.getResult();
+                                        String imageUrl = String.valueOf(downloadUrl);
+
+
                                         UserModel userModel = new UserModel();
                                         userModel.userName = name.getText().toString();
                                         userModel.profileImageUrl = imageUrl;

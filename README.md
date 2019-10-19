@@ -43,6 +43,9 @@
 > > * Connect your app to Firebase
 > > * Add Cloud Storage to your app. - [Accept Changed] 클릭.
 
+- glide 라이브러리 추가하기.
+> > implementation 'com.github.bumptech.glide:glide:4.10.0'
+
 ## Todo
 - [x] 'Ahn' Project 생성 및 MainActivity -> SplashActivity 이름변경.
 - [x] 로딩 아이콘 파일 다운로드 및 Firebase연동하기.
@@ -51,3 +54,4 @@
 - [x] SignupActivity - Firebase의 Storage에 프로필 사진 저장 - 회원가입 레이아웃 - 2.
 - [x] Login Event 만들기.
 - [x] BottomNavigationView 만들기.
+- [] People Fragment 만들기 Part 1.
