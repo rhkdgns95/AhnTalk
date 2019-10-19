@@ -21,9 +21,23 @@
 - Design 추가
 > * build.gralde(Module: app)에 implementation 'com.google.android.material:material:1.0.0' 추가.
 
+- Firebase 로그인 계정 설정
+> 1. [Tools] - Firebase 클릭
+> 2. Authentication
+> > 1. Connect your app to Firebase. - Connected
+> > 2. Add Firebase Authentication to your app. - [Accept Changed] 클릭.
+> > 3. Firebase 웹 페이지 - 개발 - [Authentication] - [로그인 방법] - [이메일/비밀번호] - 사용여부 설정.
+
+- Realtime Database 설정
+> 1. Firebase 웹 페이지 - [Database]클릭 - [Realtime Database]생성하기 클릭.
+> 2. 안드로이드 스튜디오 - [Tools] - Firebase 클릭
+> 3. Realtime Database
+> > * Connect your app to Firebase
+> > * Add the Realtime Database to your app. - [Accpet Changed] 클릭.
 
 ## Todo
 - [x] 'Ahn' Project 생성 및 MainActivity -> SplashActivity 이름변경.
-- [X] 로딩 아이콘 파일 다운로드 및 Firebase연동하기.
-- [] LoginActivity 추가하기.
+- [x] 로딩 아이콘 파일 다운로드 및 Firebase연동하기.
+- [x] LoginActivity (Empty Activity생성)생성 후 원격 데이터로 테마적용하기 - 로그인 레이아웃.
+- [x] SignupActivity - Firebase로 계정생성 후 Database에 계정의 UID와 함께 유저정보 저장 - 회원가입 레이아웃.
 
