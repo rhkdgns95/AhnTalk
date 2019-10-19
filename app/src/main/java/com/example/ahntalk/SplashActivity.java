@@ -5,8 +5,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -22,6 +24,8 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         linearLayout = (LinearLayout) findViewById(R.id.splashactivity_linearlayout);
 
@@ -76,6 +80,7 @@ public class SplashActivity extends AppCompatActivity {
      *
      */
     void displayMessage() {
+
         String splash_background = mFirebaseRemoteConfig.getString("splash_background");
         boolean caps = mFirebaseRemoteConfig.getBoolean("splash_message_caps");
         String splash_message = mFirebaseRemoteConfig.getString("splash_message");
@@ -83,9 +88,10 @@ public class SplashActivity extends AppCompatActivity {
         linearLayout.setBackgroundColor(Color.parseColor(splash_background));
 
         /**
-         *  caps: 서버점검중인 경우 (boolean)
+         *  caps: 서버 점검중 여부확인(boolean)
          *
          *  true - finish(); 종료.
+         *  false - LoginActivity 실행.
          */
         if(caps) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -96,6 +102,8 @@ public class SplashActivity extends AppCompatActivity {
                 }
             });
             builder.create().show();
+        } else {
+            startActivity((new Intent(this, LoginActivity.class)));
         }
     }
 }
