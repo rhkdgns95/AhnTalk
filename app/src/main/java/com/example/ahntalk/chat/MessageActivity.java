@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,9 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.ahntalk.R;
 import com.example.ahntalk.model.ChatModel;
 import com.example.ahntalk.model.UserModel;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -92,15 +95,18 @@ public class MessageActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Void aVoid) {
                             checkChatRoom();
-                            editText.setText("");
                         }
                     });
                 } else {
                     ChatModel.Comment comment = new ChatModel.Comment();
                     comment.uid = uid;
                     comment.message = editText.getText().toString();
-                    editText.setText("");
-                    FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").push().setValue(comment);
+                    FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").push().setValue(comment).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            editText.setText("");
+                        }
+                    });
                 }
 
             }
@@ -158,6 +164,7 @@ public class MessageActivity extends AppCompatActivity {
                     }
 
                     notifyDataSetChanged(); // 새로운 데이터를 갱신.
+                    recyclerView.scrollToPosition(comments.size() - 1); // 채팅방 스크롤을 하단으로 이동시키기.
                 }
 
                 @Override
@@ -177,12 +184,14 @@ public class MessageActivity extends AppCompatActivity {
              *
              */
             if(comments.get(position).uid.equals(uid)) {
+                // 내가 보낸 메시지.
                 messageViewHolder.textView_message.setText(comments.get(position).message);
                 messageViewHolder.textView_message.setBackgroundResource(R.drawable.message_bubble_right);
                 messageViewHolder.linearLayout_destination.setVisibility(View.INVISIBLE); // 자신의 정보는 가릴수 있도록 한다.
-                messageViewHolder.linearLayout_destination.set
                 messageViewHolder.textView_message.setTextSize(25);
+                messageViewHolder.linearLayout_main.setGravity(Gravity.RIGHT);
             } else {
+                // 상대방이 보낸 메시지.
                 Glide.with(holder.itemView.getContext())
                         .load(userModel.profileImageUrl)
                         .apply(new RequestOptions().circleCrop())
@@ -192,6 +201,7 @@ public class MessageActivity extends AppCompatActivity {
                 messageViewHolder.textView_message.setBackgroundResource(R.drawable.message_bubble_left);
                 messageViewHolder.textView_message.setText(comments.get(position).message);
                 messageViewHolder.textView_message.setTextSize(25);
+                messageViewHolder.linearLayout_main.setGravity(Gravity.LEFT);
             }
 
         }
@@ -213,13 +223,16 @@ public class MessageActivity extends AppCompatActivity {
             public TextView textview_name;
             public ImageView imageView_profile;
             public LinearLayout linearLayout_destination;
+            public LinearLayout linearLayout_main;
 
             public MessageViewHolder(View view) {
                 super(view);
-                textView_message = (TextView) view.findViewById(R.id.messageItem_textView_message);
-                textview_name = (TextView) view.findViewById(R.id.messageItem_textView_message);
+                textView_message = (TextView) view.findViewById(R.id.messageItem_textview_message);
+                textview_name = (TextView) view.findViewById(R.id.messageItem_textview_name);
                 imageView_profile = (ImageView) view.findViewById(R.id.messageItem_imageview_profile);
                 linearLayout_destination = (LinearLayout) view.findViewById(R.id.messageItem_linearlayout_destination);
+                linearLayout_main = (LinearLayout) view.findViewById(R.id.messageItem_linearlayout_main);
+
             }
         }
     }
