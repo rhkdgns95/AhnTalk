@@ -66,3 +66,5 @@
 - [x] 메시지 나타내기.
 - [x] 말풍선 Chat Bubble 만들기 Part 1.
 - [x] 말풍선 Chat Bubble 만들기 Part 2.
+- [x] 대화방 리스트 Part 1.
+- [] 대화방 리스트 Part 2.
