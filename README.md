@@ -48,3 +48,4 @@
 - [x] LoginActivity (Empty Activity생성)생성 후 원격 데이터로 테마적용하기 - 로그인 레이아웃.
 - [x] SignupActivity - Firebase로 계정생성 후 Database에 계정의 UID와 함께 유저정보 저장 - 회원가입 레이아웃.
 - [x] SignupActivity - Firebase의 Storage에 프로필 사진 저장 - 회원가입 레이아웃 - 2.
+- [x] Login Event 만들기.

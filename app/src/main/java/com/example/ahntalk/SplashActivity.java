@@ -23,7 +23,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_splash);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -104,6 +104,7 @@ public class SplashActivity extends AppCompatActivity {
             builder.create().show();
         } else {
             startActivity((new Intent(this, LoginActivity.class)));
+            finish();
         }
     }
 }
