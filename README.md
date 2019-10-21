@@ -94,3 +94,4 @@
 - [x] 푸시 메시지 만들기 Part 1.
 - [x] 푸시 메시지 만들기 Part 2.
 - [x] 상태메시지(ConditionMessage)를 위한 AlertDialog 만들기.
+- [x] 상태메시지(ConditionMessage)를 위한 AlertDialog 만들기 Part 2.

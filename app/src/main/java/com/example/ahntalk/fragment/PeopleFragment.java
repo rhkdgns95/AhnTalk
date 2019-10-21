@@ -132,16 +132,25 @@ public class PeopleFragment extends Fragment {
                     startActivity(intent, activityOptions.toBundle());
                 }
             });
+            /**
+             *  user가 comment를 작성한 경우만
+             *  띄우도록 하기.
+             */
+            if(userModels.get(position).comment != null) {
+                ((CustomViewHolder) holder).textView_comment.setText(userModels.get(position).comment);
+            }
         }
 
         private class CustomViewHolder extends RecyclerView.ViewHolder {
             public ImageView imageView;
             public TextView textView;
+            public TextView textView_comment;
 
             public CustomViewHolder(View view) {
                 super(view);
                 imageView = (ImageView) view.findViewById(R.id.frienditem_imageview);
                 textView = (TextView) view.findViewById(R.id.frienditem_textview);
+                textView_comment = (TextView) view.findViewById(R.id.frienditem_textview_comment);
             }
         }
     }
