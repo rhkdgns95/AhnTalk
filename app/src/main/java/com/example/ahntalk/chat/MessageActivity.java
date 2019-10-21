@@ -37,6 +37,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
@@ -51,7 +52,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
@@ -73,6 +76,12 @@ public class MessageActivity extends AppCompatActivity {
     private UserModel destinationUserModel;
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+    /**
+     *  [ databaseReference, valueEventListener ]
+     *  채팅방 들어갔다 나오는경우, 읽음표시가 계속되는 버그 잡기.
+     */
+    private DatabaseReference databaseReference;
+    private ValueEventListener valueEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -227,17 +236,40 @@ public class MessageActivity extends AppCompatActivity {
                 }
             });
         }
+
+        /**
+         *
+         *  getMessageList 채팅메시지 가져오기
+         *
+         *  서버에 채팅방을 요청해서 가져온다.
+         *  추가적으로, 채팅내용을 읽은것으로 표시해서 전달한다.
+         */
         void getMessageList() {
-            FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").addValueEventListener(new ValueEventListener() {
+            databaseReference = FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments");
+            valueEventListener = databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     comments.clear(); // clear를 하지 않으면, 데이터 갱신시 같은 데이터가 중복되서 쌓이게 됨.
-                    for(DataSnapshot item : dataSnapshot.getChildren()) {
-                        comments.add(item.getValue(ChatModel.Comment.class));
-                    }
+                    Map<String, Object> readUsersMap = new HashMap<>();
 
-                    notifyDataSetChanged(); // 새로운 데이터를 갱신.
-                    recyclerView.scrollToPosition(comments.size() - 1); // 채팅방 스크롤을 하단으로 이동시키기.
+                    for(DataSnapshot item : dataSnapshot.getChildren()) {
+                        String key = item.getKey();
+                        ChatModel.Comment comment = item.getValue(ChatModel.Comment.class);
+
+                        comment.readUsers.put(uid, true);
+                        readUsersMap.put(key, comment);
+
+                        comments.add(comment);
+                    }
+                    FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").updateChildren(readUsersMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            notifyDataSetChanged(); // 새로운 데이터를 갱신.
+                            recyclerView.scrollToPosition(comments.size() - 1); // 채팅방 스크롤을 하단으로 이동시키기.
+                        }
+                    });
+
+
                 }
 
                 @Override
@@ -322,6 +354,7 @@ public class MessageActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         //super.onBackPressed();
+        databaseReference.removeEventListener(valueEventListener);
         finish();
         overridePendingTransition(R.anim.fromleft, R.anim.toright);
     }
