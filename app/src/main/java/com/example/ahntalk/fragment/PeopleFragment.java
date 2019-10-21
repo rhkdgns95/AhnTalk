@@ -68,6 +68,7 @@ public class PeopleFragment extends Fragment {
                     userModels.clear();
                     for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         UserModel userModel = snapshot.getValue(UserModel.class);
+
                         if(userModel.uid.equals(myUid)) {
                             continue;
                         }

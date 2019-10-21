@@ -49,6 +49,18 @@
 - 말풍선 디자인
 > > http://www.devexchanges.info/2016/03/design-chat-bubble-ui-in-android.html 참고
 
+- Firebase 클라우드 메시징
+> > 참고: https://firebase.google.com/docs/cloud-messaging
+> > Firebase SDK설정.
+> > * gradle추가: implementation 'com.google.firebase:firebase-messaging:20.0.0'
+> > 또한, firebase-messaging을 사용하기위해서 firebase 관련된것들의 버전을 최신버전으로 사용하도록 한다.
+> > gcm을 대체하도록 사용됨.
+
+- gson 추가 [push 사용]
+> > implementation 'com.google.code.gson:gson:2.8.5'
+
+- okhttp 추가 [push 사용]
+> > implementation 'com.squareup.okhttp3:okhttp:4.2.1'
 
 ## Todo
 - [x] 'Ahn' Project 생성 및 MainActivity -> SplashActivity 이름변경.
@@ -71,3 +83,4 @@
 - [x] 메시지에 보낸 시간 만들기.
 - [x] 버그 수정[다른 유저(채팅 관련없는, 채팅방에 없는)에게 보이는 채팅목록 제거].
 - [x] 채팅방 리스트에서 채팅방 이동 및 채팅방 TimeStamp 만들기.
+- [x] 푸시 메시지 만들기 Part 1.

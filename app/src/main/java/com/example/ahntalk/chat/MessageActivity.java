@@ -4,6 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import android.os.Bundle;
 import android.os.Message;
@@ -21,6 +28,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.ahntalk.R;
 import com.example.ahntalk.model.ChatModel;
+import com.example.ahntalk.model.NotificationModel;
 import com.example.ahntalk.model.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,9 +39,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
+import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Comment;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,6 +66,7 @@ public class MessageActivity extends AppCompatActivity {
     private String chatRoomUid;
 
     private RecyclerView recyclerView;
+    private UserModel destinationUserModel;
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
 
@@ -112,6 +124,7 @@ public class MessageActivity extends AppCompatActivity {
                     FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").push().setValue(comment).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
+                            sendFcm();
                             editText.setText("");
                         }
                     });
@@ -121,6 +134,49 @@ public class MessageActivity extends AppCompatActivity {
         });
         checkChatRoom();
     }
+
+    /**
+     *  Push 알림
+     *
+     *  메시지 받는 유저의 pushToken에
+     *  메시지를 전달한다.
+     *  참고!
+     *  * header("Content-Type", "application/json; charset=UTF-8")
+     *  * 이전서버 키
+     *  * fcm url
+     */
+    void sendFcm() {
+        Gson gson = new Gson();
+        NotificationModel notificationModel = new NotificationModel();
+        notificationModel.to = destinationUserModel.pushToken;
+        notificationModel.notification.title = "보낸이 아이디";
+        notificationModel.notification.text = editText.getText().toString();
+
+        // deprecated!
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf8"), gson.toJson(notificationModel));
+
+        Request request = new Request.Builder()
+                .header("Content-Type", "application/json")
+                .addHeader("Authorization", "key=AIzaSyAh2PTcrU_jxUJGfBECiMMotOmuPp2uovM")
+                .url("https://fcm.googleapis.com/fcm/send")
+                .post(requestBody)
+                .build();
+
+        OkHttpClient okHttpClient = new OkHttpClient();
+
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+
+            }
+        });
+    }
+
     void checkChatRoom() {
         FirebaseDatabase.getInstance().getReference().child("chatrooms").orderByChild("users/"+uid).equalTo(true).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -144,7 +200,7 @@ public class MessageActivity extends AppCompatActivity {
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         List<ChatModel.Comment> comments;
-        UserModel userModel;
+
 
         public RecyclerViewAdapter() {
             comments = new ArrayList<>();
@@ -152,7 +208,7 @@ public class MessageActivity extends AppCompatActivity {
             FirebaseDatabase.getInstance().getReference().child("users").child(destinationUid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    userModel = dataSnapshot.getValue(UserModel.class);
+                    destinationUserModel = dataSnapshot.getValue(UserModel.class);
                     getMessageList();
                 }
 
@@ -201,10 +257,10 @@ public class MessageActivity extends AppCompatActivity {
             } else {
                 // 상대방이 보낸 메시지.
                 Glide.with(holder.itemView.getContext())
-                        .load(userModel.profileImageUrl)
+                        .load(destinationUserModel.profileImageUrl)
                         .apply(new RequestOptions().circleCrop())
                         .into(messageViewHolder.imageView_profile);
-                messageViewHolder.textview_name.setText(userModel.userName);
+                messageViewHolder.textview_name.setText(destinationUserModel.userName);
                 messageViewHolder.linearLayout_destination.setVisibility(View.VISIBLE);
                 messageViewHolder.textView_message.setBackgroundResource(R.drawable.message_bubble_left);
                 messageViewHolder.textView_message.setText(comments.get(position).message);
