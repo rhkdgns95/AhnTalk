@@ -1,14 +1,17 @@
 package com.example.ahntalk.fragment;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Message;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,56 +20,38 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.ahntalk.R;
 import com.example.ahntalk.chat.MessageActivity;
 import com.example.ahntalk.model.UserModel;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+/**
+ *  SelectFriendActivity
+ *
+ *  (친구목록 추가)
+ *  Button 클릭 시,
+ *  대화방에 초대할 Checkbox가능한
+ *  친구목록 확인.
+ */
+public class SelectFriendActivity extends AppCompatActivity {
 
-public class PeopleFragment extends Fragment {
-
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_people, container, false);
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.peoplefragment_recyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(inflater.getContext()));
-        recyclerView.setAdapter(new PeopleFragmentRecyclerViewAdapter());
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_select_friend);
 
-        FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.peoplefragment_floatingButton);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(v.getContext(),  SelectFriendActivity.class));
-            }
-        });
-
-        return view;
+        RecyclerView recyclerView = findViewById(R.id.selectFriendActivity_recyclerview);
+        recyclerView.setAdapter(new SelectFriendActivityAdapter());
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
-
-    /**
-     *  (1) Recycler View 생성
-     *
-     *  * myUid
-     *  현재 로그인한 user의 uid이며,
-     *  자신의 데이터는 채팅목록에서
-     *  제외 시켜주면 된다.
-     */
-    class PeopleFragmentRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    class SelectFriendActivityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         List<UserModel> userModels;
-        public PeopleFragmentRecyclerViewAdapter() {
+        public SelectFriendActivityAdapter() {
             userModels = new ArrayList<>();
             final String myUid = FirebaseAuth.getInstance().getUid();
             FirebaseDatabase.getInstance().getReference().child("users").addValueEventListener(new ValueEventListener() {
@@ -102,7 +87,7 @@ public class PeopleFragment extends Fragment {
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_friend, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_friend_select, parent, false);
             return new CustomViewHolder(view);
         }
 
@@ -154,12 +139,14 @@ public class PeopleFragment extends Fragment {
             public ImageView imageView;
             public TextView textView;
             public TextView textView_comment;
+            public CheckBox checkbox;
 
             public CustomViewHolder(View view) {
                 super(view);
                 imageView = (ImageView) view.findViewById(R.id.frienditem_imageview);
                 textView = (TextView) view.findViewById(R.id.frienditem_textview);
                 textView_comment = (TextView) view.findViewById(R.id.frienditem_textview_comment);
+                checkbox = (CheckBox) view.findViewById(R.id.friendItem_checkbox);
             }
         }
     }

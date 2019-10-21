@@ -97,3 +97,4 @@
 - [x] 상태메시지(ConditionMessage)를 위한 AlertDialog 만들기 Part 2.
 - [x] 메시지 읽음표시 만들기 Part 1.
 - [x] 메시지 읽음표시 만들기 Part 2.
+- [x] 단체 채팅방 만들기 Part 1.
