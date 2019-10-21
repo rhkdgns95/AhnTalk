@@ -2,9 +2,13 @@ package com.example.ahntalk.chat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -22,7 +26,10 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.nio.channels.Channel;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -38,6 +45,19 @@ public class GroupMessageActivity extends AppCompatActivity {
     String destinationRoom;
     String uid;
     EditText editText;
+
+    /**
+     *  (2) [ databaseReference, valueEventListener ]
+     *  채팅방 들어갔다 나오는경우, 읽음표시가 계속되는 버그 잡기.
+     */
+    private UserModel destinationUserModel;
+    private DatabaseReference databaseReference;
+    private ValueEventListener valueEventListener;
+
+    List<ChatModel.Comment> comments = new ArrayList<>();
+
+    private RecyclerView recyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +79,9 @@ public class GroupMessageActivity extends AppCompatActivity {
 
             }
         });
+        recyclerView = (RecyclerView) findViewById(R.id.groupMessageActivity_recyclerview);
+        recyclerView.setAdapter(new GroupMessageRecyclerViewAdapter());
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
     void init() {
         Button button = (Button) findViewById(R.id.groupMessageActivity_button);
@@ -78,5 +101,87 @@ public class GroupMessageActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+    class GroupMessageRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+        public GroupMessageRecyclerViewAdapter() {
+            getMessageList();
+
+        }
+        /**
+         *
+         *  getMessageList 채팅메시지 가져오기
+         *
+         *  서버에 채팅방을 요청해서 가져온다.
+         *  추가적으로, 채팅내용을 읽은것으로 표시해서 전달한다.
+         */
+        void getMessageList() {
+            databaseReference = FirebaseDatabase.getInstance().getReference().child("chatrooms").child(destinationRoom).child("comments");
+            valueEventListener = databaseReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    comments.clear(); // clear를 하지 않으면, 데이터 갱신시 같은 데이터가 중복되서 쌓이게 됨.
+                    Map<String, Object> readUsersMap = new HashMap<>();
+
+                    for(DataSnapshot item : dataSnapshot.getChildren()) {
+                        String key = item.getKey();
+                        ChatModel.Comment comment_origin = item.getValue(ChatModel.Comment.class);
+                        ChatModel.Comment comment_modify = item.getValue(ChatModel.Comment.class);
+
+
+                        comment_modify.readUsers.put(uid, true);
+                        readUsersMap.put(key, comment_modify);
+
+                        comments.add(comment_origin);
+                    }
+
+                    if(!comments.get(comments.size() - 1).readUsers.containsKey(uid)) {
+                        // 읽지 않은 경우
+                        FirebaseDatabase.getInstance().getReference().child("chatrooms").child(destinationRoom).child("comments").updateChildren(readUsersMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                notifyDataSetChanged(); // 새로운 데이터를 갱신.
+                                recyclerView.scrollToPosition(comments.size() - 1); // 채팅방 스크롤을 하단으로 이동시키기.
+                            }
+                        });
+                    } else {
+                        // 메시지를 읽은경우
+                        notifyDataSetChanged(); // 새로운 데이터를 갱신.
+                        recyclerView.scrollToPosition(comments.size() - 1); // 채팅방 스크롤을 하단으로 이동시키기.
+                    }
+
+
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+        @NonNull
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+            return new GroupMessageViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return comments.size();
+        }
+
+        private class GroupMessageViewHolder extends RecyclerView.ViewHolder {
+            public GroupMessageViewHolder(View view) {
+                super(view);
+
+            }
+        }
     }
 }
