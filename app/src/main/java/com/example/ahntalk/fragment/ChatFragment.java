@@ -1,5 +1,7 @@
 package com.example.ahntalk.fragment;
 
+import android.app.ActivityOptions;
+import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,7 +12,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.ahntalk.MainActivity;
 import com.example.ahntalk.R;
+import com.example.ahntalk.chat.MessageActivity;
 import com.example.ahntalk.model.ChatModel;
 import com.example.ahntalk.model.UserModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,10 +24,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.TreeMap;
 
 import androidx.annotation.NonNull;
@@ -33,6 +40,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ChatFragment extends Fragment {
+
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd hh:mm");
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -48,6 +58,7 @@ public class ChatFragment extends Fragment {
         private List<ChatModel> chatModels = new ArrayList<>();
         private String uid;
 
+        private ArrayList<String> destinationUsers = new ArrayList<>();
         /**
          *  (1) 로그인 유저가 속한 채팅방 가져오기.
          */
@@ -77,7 +88,7 @@ public class ChatFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
             final CustomViewHolder customViewHolder = (CustomViewHolder)holder;
             String destinationUid = null;
 
@@ -88,6 +99,7 @@ public class ChatFragment extends Fragment {
             for(String user : chatModels.get(position).users.keySet()) {
                 if(!user.equals(uid)) {
                     destinationUid = user;
+                    destinationUsers.add(destinationUid);
                 }
             }
             FirebaseDatabase.getInstance().getReference().child("users").child(destinationUid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -119,6 +131,29 @@ public class ChatFragment extends Fragment {
             commentMap.putAll(chatModels.get(position).comments);
             String lastMessageKey = (String) commentMap.keySet().toArray()[0];
             customViewHolder.textView_last_message.setText(chatModels.get(position).comments.get(lastMessageKey).message);
+
+            /**
+             *  채팅방 클릭시,
+             *  채팅방으로 이동.
+             */
+            customViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getView().getContext(), MessageActivity.class);
+                    intent.putExtra("destinationUid", destinationUsers.get(position));
+
+                    ActivityOptions activityOptions = ActivityOptions.makeCustomAnimation(v.getContext(), R.anim.fromright, R.anim.toleft);
+                    startActivity(intent, activityOptions.toBundle());
+                }
+            });
+
+            /**
+             *  Timestamp
+             */
+            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+            long unixTime = (long) chatModels.get(position).comments.get(lastMessageKey).timestamp;
+            Date date = new Date(unixTime);
+            customViewHolder.textView_timestamp.setText(simpleDateFormat.format(date));
         }
 
         @Override
@@ -130,12 +165,14 @@ public class ChatFragment extends Fragment {
             public ImageView imageView;
             public TextView textView_title;
             public TextView textView_last_message;
+            public TextView textView_timestamp;
 
             public CustomViewHolder(View view) {
                 super(view);
                 imageView = (ImageView) view.findViewById(R.id.chatitem_imageview);
                 textView_title = (TextView) view.findViewById(R.id.chatitem_textview_title);
                 textView_last_message = (TextView) view.findViewById(R.id.chatitem_textview_lastMessage);
+                textView_timestamp = (TextView) view.findViewById(R.id.chatitem_textview_timestamp);
             }
         }
     }

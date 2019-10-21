@@ -249,4 +249,15 @@ public class MessageActivity extends AppCompatActivity {
             }
         }
     }
+
+    /**
+     *  채팅방에서 뒤로가기시,
+     *  애니메이션 효과 유지되도록 한 것,
+     */
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        finish();
+        overridePendingTransition(R.anim.fromleft, R.anim.toright);
+    }
 }
