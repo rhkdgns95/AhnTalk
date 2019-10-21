@@ -202,7 +202,7 @@ public class MessageActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(DataSnapshot item : dataSnapshot.getChildren()) {
                     ChatModel chatModel = item.getValue(ChatModel.class);
-                    if(chatModel.users.containsKey(destinationUid)) {
+                    if(chatModel.users.containsKey(destinationUid) && chatModel.users.size() == 2) {
                         chatRoomUid = item.getKey();
                         button.setEnabled(true);
                         recyclerView.setLayoutManager(new LinearLayoutManager(MessageActivity.this));
@@ -406,8 +406,10 @@ public class MessageActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         //super.onBackPressed();
-        databaseReference.removeEventListener(valueEventListener);
-        finish();
-        overridePendingTransition(R.anim.fromleft, R.anim.toright);
+        if(valueEventListener != null) { // Bug Fixed.
+            databaseReference.removeEventListener(valueEventListener);
+            finish();
+            overridePendingTransition(R.anim.fromleft, R.anim.toright);
+        }
     }
 }

@@ -11,7 +11,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.ahntalk.R;
 import com.example.ahntalk.chat.MessageActivity;
+import com.example.ahntalk.model.ChatModel;
 import com.example.ahntalk.model.UserModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +29,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.security.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +41,10 @@ import java.util.List;
  *  대화방에 초대할 Checkbox가능한
  *  친구목록 확인.
  */
+
 public class SelectFriendActivity extends AppCompatActivity {
+
+    ChatModel chatModel = new ChatModel();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +54,17 @@ public class SelectFriendActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.selectFriendActivity_recyclerview);
         recyclerView.setAdapter(new SelectFriendActivityAdapter());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        Button button = (Button) findViewById(R.id.selectFriendActivity_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String myUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                chatModel.users.put(myUid, true);
+
+                FirebaseDatabase.getInstance().getReference().child("chatrooms").push().setValue(chatModel);
+            }
+        });
     }
     class SelectFriendActivityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -133,6 +151,18 @@ public class SelectFriendActivity extends AppCompatActivity {
             if(userModels.get(position).comment != null) {
                 ((CustomViewHolder) holder).textView_comment.setText(userModels.get(position).comment);
             }
+            ((CustomViewHolder) holder).checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if(isChecked) {
+                        // 값이 체크 선택으로 변경된경우,
+                        chatModel.users.put(userModels.get(position).uid, true);
+                    } else {
+                        // 값이 체크 해제로 변경된경우,
+                        chatModel.users.remove(userModels.get(position));
+                    }
+                }
+            });
         }
 
         private class CustomViewHolder extends RecyclerView.ViewHolder {

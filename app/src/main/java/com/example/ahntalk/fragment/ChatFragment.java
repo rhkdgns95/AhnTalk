@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.ahntalk.MainActivity;
 import com.example.ahntalk.R;
+import com.example.ahntalk.chat.GroupMessageActivity;
 import com.example.ahntalk.chat.MessageActivity;
 import com.example.ahntalk.model.ChatModel;
 import com.example.ahntalk.model.UserModel;
@@ -54,22 +55,28 @@ public class ChatFragment extends Fragment {
 
         return view;
     }
+
     class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private List<ChatModel> chatModels = new ArrayList<>();
+
+        // 방에대한 Key를 갖을 수 있도록 한다.
+        private List<String> keys = new ArrayList<>();
         private String uid;
 
         private ArrayList<String> destinationUsers = new ArrayList<>();
+
         /**
-         *  (1) 로그인 유저가 속한 채팅방 가져오기.
+         * (1) 로그인 유저가 속한 채팅방 가져오기.
          */
         public ChatRecyclerViewAdapter() {
             uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            FirebaseDatabase.getInstance().getReference().child("chatrooms").orderByChild("users/"+uid).equalTo(true).addListenerForSingleValueEvent(new ValueEventListener() {
+            FirebaseDatabase.getInstance().getReference().child("chatrooms").orderByChild("users/" + uid).equalTo(true).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     chatModels.clear();
-                    for(DataSnapshot item : dataSnapshot.getChildren()) {
+                    for (DataSnapshot item : dataSnapshot.getChildren()) {
                         chatModels.add(item.getValue(ChatModel.class));
+                        keys.add(item.getKey());
                     }
                     notifyDataSetChanged();
                 }
@@ -80,6 +87,7 @@ public class ChatFragment extends Fragment {
                 }
             });
         }
+
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -89,15 +97,15 @@ public class ChatFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
-            final CustomViewHolder customViewHolder = (CustomViewHolder)holder;
+            final CustomViewHolder customViewHolder = (CustomViewHolder) holder;
             String destinationUid = null;
 
             /**
              *  채팅방에 있는유저를
              *  하나하나 체크해가는 것.
-              */
-            for(String user : chatModels.get(position).users.keySet()) {
-                if(!user.equals(uid)) {
+             */
+            for (String user : chatModels.get(position).users.keySet()) {
+                if (!user.equals(uid)) {
                     destinationUid = user;
                     destinationUsers.add(destinationUid);
                 }
@@ -127,33 +135,59 @@ public class ChatFragment extends Fragment {
              *  메시지를 내림차순으로 정렬 후
              *  마지막 메시지의 키값을 가져옴.
              */
-            Map<String,ChatModel.Comment> commentMap = new TreeMap<>(Collections.reverseOrder());
+            Map<String, ChatModel.Comment> commentMap = new TreeMap<>(Collections.reverseOrder());
             commentMap.putAll(chatModels.get(position).comments);
-            String lastMessageKey = (String) commentMap.keySet().toArray()[0];
-            customViewHolder.textView_last_message.setText(chatModels.get(position).comments.get(lastMessageKey).message);
 
             /**
-             *  채팅방 클릭시,
-             *  채팅방으로 이동.
+             *  채팅 메시지가 있는경우만
+             *  채팅리스트가 보이도록 한다.
+             *
+             *  ex) 단체톡의 경우 1:1 채팅과는 다르게,
+             *  먼저 채팅 메시지를 전송하는게 아니라,
+             *  채팅방 인원들을 초대한 다음에 채팅방이 완성되고
+             *  그 다음에 메시지가 생성되도록 해야하므로,
+             *  초기 생성시에는 채팅 메시지가 존재하지 않으므로
+             *  에러를 방지하도록 한다.
              */
+            if (commentMap.keySet().toArray().length > 0) {
+
+                String lastMessageKey = (String) commentMap.keySet().toArray()[0];
+                customViewHolder.textView_last_message.setText(chatModels.get(position).comments.get(lastMessageKey).message);
+
+                /**
+                 *  채팅방 클릭시,
+                 *  채팅방으로 이동.
+                 */
+
+
+                /**
+                 *  Timestamp
+                 */
+                simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+                long unixTime = (long) chatModels.get(position).comments.get(lastMessageKey).timestamp;
+                Date date = new Date(unixTime);
+                customViewHolder.textView_timestamp.setText(simpleDateFormat.format(date));
+            }
             customViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(getView().getContext(), MessageActivity.class);
-                    intent.putExtra("destinationUid", destinationUsers.get(position));
+                    Intent intent = null;
+                    /**
+                     *  그룹메시지방 이동 및
+                     *  1:1메시지방 이동
+                      */
+                    if(chatModels.get(position).users.size() > 2) {
+                        intent = new Intent(getView().getContext(), GroupMessageActivity.class);
+                        intent.putExtra("destinationRoom", keys.get(position));
+                    } else {
+                        intent = new Intent(getView().getContext(), MessageActivity.class);
+                        intent.putExtra("destinationUid", destinationUsers.get(position));
+                    }
 
                     ActivityOptions activityOptions = ActivityOptions.makeCustomAnimation(v.getContext(), R.anim.fromright, R.anim.toleft);
                     startActivity(intent, activityOptions.toBundle());
                 }
             });
-
-            /**
-             *  Timestamp
-             */
-            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
-            long unixTime = (long) chatModels.get(position).comments.get(lastMessageKey).timestamp;
-            Date date = new Date(unixTime);
-            customViewHolder.textView_timestamp.setText(simpleDateFormat.format(date));
         }
 
         @Override
