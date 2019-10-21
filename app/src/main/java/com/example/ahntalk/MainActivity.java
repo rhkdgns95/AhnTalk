@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.example.ahntalk.fragment.AccountFragment;
 import com.example.ahntalk.fragment.ChatFragment;
 import com.example.ahntalk.fragment.PeopleFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -47,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
                         getSupportFragmentManager().beginTransaction().replace(R.id.mainactivity_framelayout, new ChatFragment()).commit();
                         return true;
 //                    case R.id.action_account:
+                    case R.id.action_account:
+                        getSupportFragmentManager().beginTransaction().replace(R.id.mainactivity_framelayout, new AccountFragment()).commit();
+                        return true;
                 }
 
                 return false;
