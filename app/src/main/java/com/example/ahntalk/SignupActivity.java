@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.storage.FirebaseStorage;
@@ -110,12 +111,20 @@ public class SignupActivity extends AppCompatActivity {
                              */
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
+
+                                /**
+                                 *  회원가입 후 이름이 남도록 한다.
+                                 */
+                                UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder().setDisplayName(name.getText().toString()).build();
+                                task.getResult().getUser().updateProfile(userProfileChangeRequest);
+
+
                                 final String uid = task.getResult().getUser().getUid();
                                 final StorageReference profileImageRef = FirebaseStorage.getInstance().getReference().child("userImages").child(uid);
+
                                 profileImageRef.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
                                         /**
                                          *  Image Load 변경.
                                          *

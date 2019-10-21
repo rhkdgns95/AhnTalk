@@ -14,6 +14,7 @@ import okhttp3.Response;
 
 import android.os.Bundle;
 import android.os.Message;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +43,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.Comment;
 
 import java.io.IOException;
@@ -50,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 
 /**
  *  (1) 채팅창을 클릭할 경우
@@ -136,7 +140,7 @@ public class MessageActivity extends AppCompatActivity {
     }
 
     /**
-     *  Push 알림
+     *  Push 알림 (네트워크 전송의 헤더와 바디부분)
      *
      *  메시지 받는 유저의 pushToken에
      *  메시지를 전달한다.
@@ -147,14 +151,19 @@ public class MessageActivity extends AppCompatActivity {
      */
     void sendFcm() {
         Gson gson = new Gson();
+
+        String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+
         NotificationModel notificationModel = new NotificationModel();
         notificationModel.to = destinationUserModel.pushToken;
-        notificationModel.notification.title = "보낸이 아이디";
-        notificationModel.notification.text = editText.getText().toString();
+        Log.d("my_error", "사용자 Token값: "+ notificationModel.to);
+        notificationModel.data.title = userName;
+        notificationModel.data.text = editText.getText().toString();
 
         // deprecated!
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf8"), gson.toJson(notificationModel));
 
+        Log.d("my_error", "데이터: " + requestBody);
         Request request = new Request.Builder()
                 .header("Content-Type", "application/json")
                 .addHeader("Authorization", "key=AIzaSyAh2PTcrU_jxUJGfBECiMMotOmuPp2uovM")

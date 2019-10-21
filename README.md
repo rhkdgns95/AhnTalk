@@ -62,6 +62,14 @@
 - okhttp 추가 [push 사용]
 > > implementation 'com.squareup.okhttp3:okhttp:4.2.1'
 
+- Receive Message를 위한 service 권한 추가.
+> > Manifest
+> > 코드: https://firebase.google.com/docs/cloud-messaging/android/receive
+
+## Code Challenge
+- [] 메시지 PUSH - 전체 사용자가아닌 해당채팅방 사용자에게만 메시지 알림으로 뜨기.
+
+
 ## Todo
 - [x] 'Ahn' Project 생성 및 MainActivity -> SplashActivity 이름변경.
 - [x] 로딩 아이콘 파일 다운로드 및 Firebase연동하기.
@@ -84,3 +92,4 @@
 - [x] 버그 수정[다른 유저(채팅 관련없는, 채팅방에 없는)에게 보이는 채팅목록 제거].
 - [x] 채팅방 리스트에서 채팅방 이동 및 채팅방 TimeStamp 만들기.
 - [x] 푸시 메시지 만들기 Part 1.
+- [x] 푸시 메시지 만들기 Part 2.
