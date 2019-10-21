@@ -29,12 +29,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Comment;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  *  (1) 채팅창을 클릭할 경우
@@ -51,6 +55,8 @@ public class MessageActivity extends AppCompatActivity {
     private String chatRoomUid;
 
     private RecyclerView recyclerView;
+
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +107,8 @@ public class MessageActivity extends AppCompatActivity {
                     ChatModel.Comment comment = new ChatModel.Comment();
                     comment.uid = uid;
                     comment.message = editText.getText().toString();
+                    comment.timestamp = ServerValue.TIMESTAMP;
+
                     FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").push().setValue(comment).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -203,7 +211,11 @@ public class MessageActivity extends AppCompatActivity {
                 messageViewHolder.textView_message.setTextSize(25);
                 messageViewHolder.linearLayout_main.setGravity(Gravity.LEFT);
             }
-
+            long unixTime = (long) comments.get(position).timestamp;
+            Date date = new Date(unixTime);
+            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+            String time = simpleDateFormat.format(date);
+            messageViewHolder.textView_timestamp.setText(time);
         }
 
         @NonNull
@@ -224,6 +236,7 @@ public class MessageActivity extends AppCompatActivity {
             public ImageView imageView_profile;
             public LinearLayout linearLayout_destination;
             public LinearLayout linearLayout_main;
+            public TextView textView_timestamp;
 
             public MessageViewHolder(View view) {
                 super(view);
@@ -232,7 +245,7 @@ public class MessageActivity extends AppCompatActivity {
                 imageView_profile = (ImageView) view.findViewById(R.id.messageItem_imageview_profile);
                 linearLayout_destination = (LinearLayout) view.findViewById(R.id.messageItem_linearlayout_destination);
                 linearLayout_main = (LinearLayout) view.findViewById(R.id.messageItem_linearlayout_main);
-
+                textView_timestamp = (TextView) view.findViewById(R.id.messageItem_textview_timestamp);
             }
         }
     }
