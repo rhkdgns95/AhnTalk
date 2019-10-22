@@ -79,8 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
                 String token = task.getResult().getToken();
                 map.put("pushToken", token);
-                Log.d("my_text", "핼로우");
-                Log.d("my_text", token);
                 /**
                  *  주의!
                  *

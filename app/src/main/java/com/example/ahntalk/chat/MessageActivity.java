@@ -264,7 +264,10 @@ public class MessageActivity extends AppCompatActivity {
 
                         comments.add(comment_origin);
                     }
-
+                    // BugFixed
+                    if(comments.size() == 0) {
+                        return;
+                    }
                     if(!comments.get(comments.size() - 1).readUsers.containsKey(uid)) {
                         // 읽지 않은 경우
                         FirebaseDatabase.getInstance().getReference().child("chatrooms").child(chatRoomUid).child("comments").updateChildren(readUsersMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -300,6 +303,7 @@ public class MessageActivity extends AppCompatActivity {
              *  uid : 현재 로그인 사람의 uid
              *
              */
+
             if(comments.get(position).uid.equals(uid)) {
                 // 내가 보낸 메시지.
                 messageViewHolder.textView_message.setText(comments.get(position).message);
